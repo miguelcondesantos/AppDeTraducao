@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
 const Home = () => {
   const [textToTranslate, setTextToTranslate] = useState(''); 
   const [translatedText, setTranslatedText] = useState('Texto traduzido aparecerá aqui'); 
+  const [targetLang, setTargetLang] = useState('PT'); 
+
+  const toggleLanguage = () => {
+    setTargetLang(prevLang => (prevLang === 'PT' ? 'EN' : 'PT')); 
+  };
 
   const handleTraduzir = async () => {
     try {
@@ -15,7 +20,7 @@ const Home = () => {
           params: {
             auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx', 
             text: textToTranslate,
-            target_lang: 'PT' 
+            target_lang: targetLang 
           }
         }
       );
@@ -41,10 +46,20 @@ const Home = () => {
             value={textToTranslate}
           />
           <Button title="Traduzir" onPress={handleTraduzir} />
+          
+          <TouchableOpacity style={styles.languageToggle} onPress={toggleLanguage}>
+            <Text style={styles.languageToggleText}>
+              {targetLang === 'PT' ? 'Inglês para Português' : 'Português para Inglês'}
+            </Text>
+          </TouchableOpacity>
+
           <View style={styles.translationBox}>
             <Text style={styles.translationText}>{translatedText}</Text>
           </View>
-          <Button title="Traduzir Voz" onPress={() => { /* Função da voz vai ficar aqui depois */ }} />
+          <Button 
+            title="Traduzir Voz" 
+            onPress={() => { /* função da voz vai ficar aqui depois*/ }} 
+          />
         </View>
       </ScrollView>
     </View>
@@ -94,6 +109,17 @@ const styles = StyleSheet.create({
   translationText: {
     fontSize: 16,
     color: '#333',
+  },
+  languageToggle: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#007BFF',
+    borderRadius: 8,
+  },
+  languageToggleText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

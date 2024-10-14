@@ -1,34 +1,22 @@
 import React, { useState } from 'react';
 import { View, Button, StyleSheet, Text, TextInput, Alert } from 'react-native';
+import { UseMongo } from '../hooks/useMongo';
 
 const Feedback = () => {
   const [feedback, setFeedback] = useState('');
+  const { feedback: enviarFeedback } = UseMongo();
 
-  const enviarFeedback = async () => {
+  const enviaFeedback = async () => {
     if (!feedback.trim()) {
       Alert.alert("Erro", "Por favor, digite seu feedback antes de enviar.");
       return;
     }
-
     try {
-      const response = await fetch('http://10.0.2.2:5000/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ texto: feedback }), 
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        Alert.alert("Sucesso", "Feedback enviado com sucesso!");
-        setFeedback('');
-      } else {
-        Alert.alert("Erro", "Houve um problema ao enviar o feedback.");
-      }
+      await enviarFeedback(feedback);
+      Alert.alert("Sucesso", "Feedback enviado com sucesso!");
+      setFeedback('');
     } catch (error) {
-      console.error(error);
-      Alert.alert("Erro", "Não foi possível enviar o feedback. Tente novamente.");
+      Alert.alert("Erro", "Ocorreu um erro ao enviar o feedback. Tente novamente.");
     }
   };
 
@@ -42,7 +30,7 @@ const Feedback = () => {
         value={feedback}
         onChangeText={setFeedback}
       />
-      <Button title="Enviar Feedback" onPress={enviarFeedback} />
+      <Button title="Enviar Feedback" onPress={enviaFeedback} />
     </View>
   );
 };

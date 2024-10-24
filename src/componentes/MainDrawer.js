@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import Home from '../telas/Home';
@@ -10,14 +10,35 @@ import Configuracoes from '../telas/Configuracoes';
 const Drawer = createDrawerNavigator();
 
 const MainDrawer = () => {
+  const [idiomaOrigem, setIdiomaOrigem] = useState(null);
+  const [idiomaDestino, setIdiomaDestino] = useState(null);
+
   return (
     <NavigationContainer>
       <Drawer.Navigator>
-        <Drawer.Screen name="Home" component={Home} />
+        <Drawer.Screen name="Home">
+          {props => (
+            <Home
+              {...props}
+              idiomaOrigem={idiomaOrigem}
+              idiomaDestino={idiomaDestino}
+              setIdiomaOrigem={setIdiomaOrigem}
+              setIdiomaDestino={setIdiomaDestino}
+            />
+          )}
+        </Drawer.Screen>
         <Drawer.Screen name="Traducao" component={Traducao} />
         <Drawer.Screen name="Historico" component={Historico} />
         <Drawer.Screen name="Feedback" component={Feedback} />
-        <Drawer.Screen name="Configuracoes" component={Configuracoes} />
+        <Drawer.Screen name="Configuracoes">
+          {props => (
+            <Configuracoes
+              {...props}
+              setIdiomaOrigem={setIdiomaOrigem}
+              setIdiomaDestino={setIdiomaDestino}
+            />
+          )}
+        </Drawer.Screen>
       </Drawer.Navigator>
     </NavigationContainer>
   );

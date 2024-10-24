@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, ScrollView, Button } from 'react-native';
 import axios from 'axios';
 
-const Home = () => {
-  const [textToTranslate, setTextToTranslate] = useState(''); 
-  const [translatedText, setTranslatedText] = useState('Texto traduzido aparecerá aqui'); 
-  const [targetLang, setTargetLang] = useState('PT'); 
+const Home = ({ idiomaOrigem, idiomaDestino }) => {
+  const [textoPraTraduzir, setTextoPraTraduzir] = useState('');
+  const [textoTraduzido, setTextoTraduzido] = useState('Texto traduzido aparecerá aqui');
 
-  const toggleLanguage = () => {
-    setTargetLang(prevLang => (prevLang === 'PT' ? 'EN' : 'PT')); 
-  };
+  useEffect(() => {
+    if (textoPraTraduzir) {
+
+      console.log('Valores enviados para a API:', {
+        auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx',
+        text: textoPraTraduzir,
+        source_lang: idiomaOrigem,
+        target_lang: idiomaDestino
+      });
+
+      handleTraduzir();
+    }
+  }, [textoPraTraduzir, idiomaOrigem, idiomaDestino]);
 
   const handleTraduzir = async () => {
     try {
@@ -18,19 +27,21 @@ const Home = () => {
         null,
         {
           params: {
-            auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx', 
-            text: textToTranslate,
-            target_lang: targetLang 
+            auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx',
+            text: textoPraTraduzir,
+            source_lang: idiomaOrigem,
+            target_lang: idiomaDestino
           }
         }
       );
 
-      const translated = response.data.translations[0].text;
-      setTranslatedText(translated); 
+      const traducao = response.data.translations[0].text;
+      setTextoTraduzido(traducao);
     } catch (error) {
       console.error('Erro ao traduzir o texto:', error);
     }
   };
+
 
   return (
     <View style={styles.container}>
@@ -39,27 +50,23 @@ const Home = () => {
           <Text style={styles.headerText}>Tradutor em Tempo Real</Text>
         </View>
         <View style={styles.mainContent}>
-          <TextInput 
-            style={styles.textInput} 
+
+          <TextInput
+            style={styles.textInput}
             placeholder="Digite o texto para traduzir"
-            onChangeText={setTextToTranslate} 
-            value={textToTranslate}
+            onChangeText={setTextoPraTraduzir}
+            value={textoPraTraduzir}
           />
-          <Button title="Traduzir" onPress={handleTraduzir} />
-          
-          <TouchableOpacity style={styles.languageToggle} onPress={toggleLanguage}>
-            <Text style={styles.languageToggleText}>
-              {targetLang === 'PT' ? 'Inglês para Português' : 'Português para Inglês'}
-            </Text>
-          </TouchableOpacity>
+
+          <Button
+            title="Traduzir Voz"
+            onPress={() => { /* função da voz vai ficar aqui depois*/ }}
+          />
 
           <View style={styles.translationBox}>
-            <Text style={styles.translationText}>{translatedText}</Text>
+            <Text style={styles.translationText}>{textoTraduzido}</Text>
           </View>
-          <Button 
-            title="Traduzir Voz" 
-            onPress={() => { /* função da voz vai ficar aqui depois*/ }} 
-          />
+          
         </View>
       </ScrollView>
     </View>
@@ -109,17 +116,6 @@ const styles = StyleSheet.create({
   translationText: {
     fontSize: 16,
     color: '#333',
-  },
-  languageToggle: {
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-  },
-  languageToggleText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
   },
 });
 

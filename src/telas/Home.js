@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Button } from 'react-native';
 import axios from 'axios';
+import { WebView } from 'react-native-webview';
 
 const Home = ({ idiomaOrigem, idiomaDestino }) => {
   const [textoPraTraduzir, setTextoPraTraduzir] = useState('');
   const [textoTraduzido, setTextoTraduzido] = useState('Texto traduzido aparecerá aqui');
+  const webviewRef = useRef(null);
 
   useEffect(() => {
     if (textoPraTraduzir) {
-
-      console.log('Valores enviados para a API:', {
-        auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx',
-        text: textoPraTraduzir,
-        source_lang: idiomaOrigem,
-        target_lang: idiomaDestino
-      });
-
       handleTraduzir();
     }
   }, [textoPraTraduzir, idiomaOrigem, idiomaDestino]);
@@ -30,8 +24,8 @@ const Home = ({ idiomaOrigem, idiomaDestino }) => {
             auth_key: '4ba7fc26-d08f-474d-b685-63137e832c49:fx',
             text: textoPraTraduzir,
             source_lang: idiomaOrigem,
-            target_lang: idiomaDestino
-          }
+            target_lang: idiomaDestino,
+          },
         }
       );
 
@@ -42,6 +36,34 @@ const Home = ({ idiomaOrigem, idiomaDestino }) => {
     }
   };
 
+  const handleVoiceRecognition = () => {
+    if (webviewRef.current) {
+      webviewRef.current.injectJavaScript(`
+        (function() {
+          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+          recognition.lang = '${idiomaOrigem}';
+          recognition.onresult = function(event) {
+            const textoReconhecido = event.results[0][0].transcript;
+            window.ReactNativeWebView.postMessage(textoReconhecido);
+          };
+          recognition.onerror = function(event) {
+            window.ReactNativeWebView.postMessage('Erro no reconhecimento: ' + event.error);
+          };
+          recognition.onend = function() {
+            recognition.start();  // Reinicia automaticamente quando o reconhecimento termina
+          };
+          recognition.start();
+        })();
+      `);
+      console.log('Ta indo');
+      
+    }
+  };
+
+  const onMessage = (event) => {
+    console.log("Texto reconhecido:", event.nativeEvent.data);
+    setTextoPraTraduzir(event.nativeEvent.data);
+  };
 
   return (
     <View style={styles.container}>
@@ -50,25 +72,27 @@ const Home = ({ idiomaOrigem, idiomaDestino }) => {
           <Text style={styles.headerText}>Tradutor em Tempo Real</Text>
         </View>
         <View style={styles.mainContent}>
-
           <TextInput
             style={styles.textInput}
             placeholder="Digite o texto para traduzir"
             onChangeText={setTextoPraTraduzir}
             value={textoPraTraduzir}
           />
-
           <Button
             title="Traduzir Voz"
-            onPress={() => { /* função da voz vai ficar aqui depois*/ }}
+            onPress={handleVoiceRecognition}
           />
-
           <View style={styles.translationBox}>
             <Text style={styles.translationText}>{textoTraduzido}</Text>
           </View>
-          
         </View>
       </ScrollView>
+      <WebView
+        ref={webviewRef}
+        style={{ display: 'none' }} // Não exibe a WebView
+        onMessage={onMessage}
+        javaScriptEnabled={true}
+      />
     </View>
   );
 };

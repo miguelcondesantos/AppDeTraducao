@@ -50,7 +50,7 @@ const Home = ({ idiomaOrigem, idiomaDestino }) => {
             window.ReactNativeWebView.postMessage('Erro no reconhecimento: ' + event.error);
           };
           recognition.onend = function() {
-            recognition.start();  // Reinicia automaticamente quando o reconhecimento termina
+            recognition.start();
           };
           recognition.start();
         })();
@@ -89,7 +89,7 @@ const Home = ({ idiomaOrigem, idiomaDestino }) => {
       </ScrollView>
       <WebView
         ref={webviewRef}
-        style={{ display: 'none' }} // Não exibe a WebView
+        style={{ display: 'none' }}
         onMessage={onMessage}
         javaScriptEnabled={true}
       />

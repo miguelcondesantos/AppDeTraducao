@@ -27,7 +27,17 @@ const MainDrawer = () => {
             />
           )}
         </Drawer.Screen>
-        <Drawer.Screen name="Traducao" component={Traducao} />
+        <Drawer.Screen name="Traducao">
+          {props => (
+            <Traducao
+              {...props}
+              idiomaOrigem={idiomaOrigem}
+              idiomaDestino={idiomaDestino}
+              setIdiomaOrigem={setIdiomaOrigem}
+              setIdiomaDestino={setIdiomaDestino}
+            />
+          )}
+        </Drawer.Screen>
         <Drawer.Screen name="Historico" component={Historico} />
         <Drawer.Screen name="Feedback" component={Feedback} />
         <Drawer.Screen name="Configuracoes">
